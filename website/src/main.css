@@ -1,0 +1,77 @@
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Merriweather', serif;
+}
+
+.text-brand-red {
+  color: #ff3c00;
+}
+
+.text-brand-orange {
+  color: #ff5100;
+}
+
+.text-dark-green {
+  color: #021500;
+}
+
+.text-off-white {
+  color: #fff7e8;
+}
+
+.text-off-white\/80 {
+  color: rgba(255, 247, 232, 0.8);
+}
+
+.bg-brand-red {
+  background-color: #ff3c00;
+}
+
+.bg-brand-orange {
+  background-color: #ff5100;
+}
+
+.bg-dark-green {
+  background-color: #021500;
+}
+
+.bg-off-white {
+  background-color: #fff7e8;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+  width: 100%;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
