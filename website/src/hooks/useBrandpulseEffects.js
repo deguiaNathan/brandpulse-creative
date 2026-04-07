@@ -169,6 +169,8 @@ export function useBrandpulseEffects(containerRef, styleText, pageTitle) {
       smoothWheel: true,
       wheelMultiplier: 0.9,
       touchMultiplier: 1.1,
+      allowNestedScroll: true,
+      prevent: (node) => node instanceof Element && Boolean(node.closest('[data-lenis-prevent]')),
     });
 
     let rafId = 0;
@@ -213,20 +215,26 @@ export function useBrandpulseEffects(containerRef, styleText, pageTitle) {
 
     let activeOverlay = null;
 
-    const lockOverlay = (overlayName) => {
+    const lockOverlay = (overlayName, { stopLenis = true } = {}) => {
       activeOverlay = overlayName;
       document.body.style.overflow = 'hidden';
-      lenis.stop();
+
+      if (stopLenis) {
+        lenis.stop();
+      }
     };
 
-    const unlockOverlay = (overlayName) => {
+    const unlockOverlay = (overlayName, { stopLenis = true } = {}) => {
       if (activeOverlay !== overlayName) {
         return;
       }
 
       activeOverlay = null;
       document.body.style.overflow = '';
-      lenis.start();
+
+      if (stopLenis) {
+        lenis.start();
+      }
     };
 
     const folioModal = container.querySelector('#folio-modal');
@@ -257,26 +265,26 @@ export function useBrandpulseEffects(containerRef, styleText, pageTitle) {
     const contactPresets = {
       general: {
         eyebrow: 'Contact',
-        heading: 'Tell us where the project starts.',
-        copy: 'Share the website you want to build, the business problem you want to solve, or the kind of call you want to set up. The form is built to qualify the next step without turning into a long questionnaire.',
+        heading: 'Tell us about your project.',
+        copy: 'Use this for a website inquiry or to set up a call.',
         choice: 'both',
       },
       website: {
         eyebrow: 'Website inquiry',
         heading: 'Tell us about the site you want to build.',
-        copy: 'Use this when you need a new website, a redesign, or a stronger lead-generation presence. A few grounded details about your business and goals are enough to shape a strong first response.',
+        copy: 'Share the basics and we can take it from there.',
         choice: 'website',
       },
       call: {
         eyebrow: 'Discovery call',
-        heading: 'Set up a call with real context.',
-        copy: 'If a conversation is the fastest way in, tell us what you are working on and when you would like to connect. That gives the call a purpose instead of making it another generic intro.',
+        heading: 'Set up a call.',
+        copy: 'Tell us what you want to discuss and when you would like to connect.',
         choice: 'call',
       },
       both: {
         eyebrow: 'Project + call',
-        heading: 'Map the website and the conversation.',
-        copy: 'Choose this when you want to talk through a website scope and also find time for a discovery call. We will have the brief and the scheduling context in one place.',
+        heading: 'Tell us about the project and the call.',
+        copy: 'Share the brief and your preferred timing in one note.',
         choice: 'both',
       },
     };
@@ -419,7 +427,7 @@ export function useBrandpulseEffects(containerRef, styleText, pageTitle) {
 
       contactModal.classList.remove('is-open');
       contactModal.setAttribute('aria-hidden', 'true');
-      unlockOverlay('contact');
+      unlockOverlay('contact', { stopLenis: false });
 
       if (restoreFocus && lastContactTrigger instanceof HTMLElement) {
         schedule(() => lastContactTrigger?.focus(), 60);
@@ -446,13 +454,17 @@ export function useBrandpulseEffects(containerRef, styleText, pageTitle) {
 
       applyContactPreset(intentKey);
 
+      if (contactModal) {
+        contactModal.scrollTop = 0;
+      }
+
       if (contactModalShell) {
         contactModalShell.scrollTop = 0;
       }
 
       contactModal.classList.add('is-open');
       contactModal.setAttribute('aria-hidden', 'false');
-      lockOverlay('contact');
+      lockOverlay('contact', { stopLenis: false });
 
       schedule(() => {
         contactNameInput?.focus();
@@ -490,7 +502,6 @@ export function useBrandpulseEffects(containerRef, styleText, pageTitle) {
       const business = formData.get('business');
       const inquiryType = formData.get('inquiryType');
       const timeline = formData.get('timeline');
-      const budget = formData.get('budget');
 
       if (name) {
         summaryParts.push(`${name}`);
@@ -506,10 +517,6 @@ export function useBrandpulseEffects(containerRef, styleText, pageTitle) {
 
       if (timeline) {
         summaryParts.push(`with a timeline of ${String(timeline).toLowerCase()}`);
-      }
-
-      if (budget) {
-        summaryParts.push(`and a budget range of ${budget}`);
       }
 
       if (contactSuccessSummary) {
@@ -542,6 +549,11 @@ export function useBrandpulseEffects(containerRef, styleText, pageTitle) {
     addListener(folioModalBackdrop, 'click', closeFolioModal);
     addListener(contactModalClose, 'click', () => closeContactModal());
     addListener(contactModalBackdrop, 'click', () => closeContactModal());
+    addListener(contactModalShell, 'click', (event) => {
+      if (event.target === contactModalShell) {
+        closeContactModal();
+      }
+    });
     addListener(document, 'keydown', (event) => {
       if (event.key !== 'Escape') {
         return;
