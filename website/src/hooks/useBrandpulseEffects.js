@@ -252,6 +252,8 @@ export function useBrandpulseEffects(containerRef, styleText, pageTitle) {
     const contactEyebrow = container.querySelector('#contact-modal-eyebrow');
     const contactHeading = container.querySelector('#contact-modal-heading');
     const contactCopy = container.querySelector('#contact-modal-copy');
+    const contactFormIntroCopy = container.querySelector('#contact-form-intro-copy');
+    const contactDetailsField = container.querySelector('textarea[name="details"]');
     const contactIntentInputs = Array.from(container.querySelectorAll('[data-contact-choice]'));
     const contactTriggers = Array.from(container.querySelectorAll('[data-contact-open]'));
 
@@ -259,29 +261,39 @@ export function useBrandpulseEffects(containerRef, styleText, pageTitle) {
     let currentContactIntent = 'general';
     let lastContactTrigger = null;
 
+    const shouldAutoFocusContactName = () => !window.matchMedia('(max-width: 560px)').matches;
+
     const contactPresets = {
       general: {
         eyebrow: 'Contact',
         heading: 'Tell us about your project.',
-        copy: 'Use this for a website inquiry or to set up a call.',
+        copy: 'Use this for a website inquiry, a discovery call, or both.',
+        introCopy: 'We set this based on the button you clicked. Change it if you need something different.',
+        detailsPlaceholder: 'Tell us what you need, what you are working with today, and anything time-sensitive.',
         choice: 'both',
       },
       website: {
         eyebrow: 'Website inquiry',
         heading: 'Tell us about the site you want to build.',
-        copy: 'Share the basics and we can take it from there.',
+        copy: 'Share the essentials and we can map the right scope from there.',
+        introCopy: 'Website project is preselected for you. Switch it if you need a different starting point.',
+        detailsPlaceholder: 'What should the site help with, what do you have today, and what would make this successful?',
         choice: 'website',
       },
       call: {
         eyebrow: 'Discovery call',
-        heading: 'Set up a call.',
-        copy: 'Tell us what you want to discuss and when you would like to connect.',
+        heading: 'Set up a discovery call.',
+        copy: 'Tell us what you want to cover and when you would like to connect.',
+        introCopy: 'Discovery call is preselected for you. Switch it if the conversation also includes project work.',
+        detailsPlaceholder: 'What do you want to talk through, and what days or times tend to work best?',
         choice: 'call',
       },
       both: {
         eyebrow: 'Project + call',
         heading: 'Tell us about the project and the call.',
-        copy: 'Share the brief and your preferred timing in one note.',
+        copy: 'Share the brief and the meeting window in one note.',
+        introCopy: 'Project + call is preselected for you. Keep it if you want to cover both in one message.',
+        detailsPlaceholder: 'Tell us what the project needs, what you have today, and when you would like to connect.',
         choice: 'both',
       },
     };
@@ -300,6 +312,14 @@ export function useBrandpulseEffects(containerRef, styleText, pageTitle) {
 
       if (contactCopy) {
         contactCopy.textContent = preset.copy;
+      }
+
+      if (contactFormIntroCopy) {
+        contactFormIntroCopy.textContent = preset.introCopy;
+      }
+
+      if (contactDetailsField) {
+        contactDetailsField.placeholder = preset.detailsPlaceholder;
       }
 
       contactIntentInputs.forEach((input) => {
@@ -463,9 +483,11 @@ export function useBrandpulseEffects(containerRef, styleText, pageTitle) {
       contactModal.setAttribute('aria-hidden', 'false');
       lockOverlay('contact', { stopLenis: false });
 
-      schedule(() => {
-        contactNameInput?.focus();
-      }, 120);
+      if (shouldAutoFocusContactName()) {
+        schedule(() => {
+          contactNameInput?.focus();
+        }, 120);
+      }
     };
 
     contactTriggers.forEach((trigger) => {
@@ -535,7 +557,10 @@ export function useBrandpulseEffects(containerRef, styleText, pageTitle) {
       contactSuccess.hidden = true;
       contactForm.hidden = false;
       applyContactPreset(currentContactIntent);
-      schedule(() => contactNameInput?.focus(), 40);
+
+      if (shouldAutoFocusContactName()) {
+        schedule(() => contactNameInput?.focus(), 40);
+      }
     });
 
     Array.from(container.querySelectorAll('.folio-card-body')).forEach((cardBody) => {
