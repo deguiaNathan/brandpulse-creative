@@ -211,14 +211,96 @@ export function useBrandpulseEffects(containerRef, styleText, pageTitle) {
       });
     });
 
+    let activeOverlay = null;
+
+    const lockOverlay = (overlayName) => {
+      activeOverlay = overlayName;
+      document.body.style.overflow = 'hidden';
+      lenis.stop();
+    };
+
+    const unlockOverlay = (overlayName) => {
+      if (activeOverlay !== overlayName) {
+        return;
+      }
+
+      activeOverlay = null;
+      document.body.style.overflow = '';
+      lenis.start();
+    };
+
     const folioModal = container.querySelector('#folio-modal');
     const folioModalInner = container.querySelector('#folio-modal-inner');
     const folioModalImg = container.querySelector('#folio-modal-img');
     const folioModalName = container.querySelector('#folio-modal-name');
     const folioModalClose = container.querySelector('#folio-modal-close');
     const folioModalBackdrop = container.querySelector('#folio-modal-backdrop');
+    const contactModal = container.querySelector('#contact-modal');
+    const contactModalShell = container.querySelector('.contact-modal-shell');
+    const contactModalClose = container.querySelector('#contact-modal-close');
+    const contactModalBackdrop = container.querySelector('#contact-modal-backdrop');
+    const contactForm = container.querySelector('#contact-form');
+    const contactNameInput = container.querySelector('#contact-name');
+    const contactSuccess = container.querySelector('#contact-success');
+    const contactSuccessSummary = container.querySelector('#contact-success-summary');
+    const contactSuccessReset = container.querySelector('#contact-success-reset');
+    const contactEyebrow = container.querySelector('#contact-modal-eyebrow');
+    const contactHeading = container.querySelector('#contact-modal-heading');
+    const contactCopy = container.querySelector('#contact-modal-copy');
+    const contactIntentInputs = Array.from(container.querySelectorAll('[data-contact-choice]'));
+    const contactTriggers = Array.from(container.querySelectorAll('[data-contact-open]'));
 
     let folioScrollActive = false;
+    let currentContactIntent = 'general';
+    let lastContactTrigger = null;
+
+    const contactPresets = {
+      general: {
+        eyebrow: 'Contact',
+        heading: 'Tell us where the project starts.',
+        copy: 'Share the website you want to build, the business problem you want to solve, or the kind of call you want to set up. The form is built to qualify the next step without turning into a long questionnaire.',
+        choice: 'both',
+      },
+      website: {
+        eyebrow: 'Website inquiry',
+        heading: 'Tell us about the site you want to build.',
+        copy: 'Use this when you need a new website, a redesign, or a stronger lead-generation presence. A few grounded details about your business and goals are enough to shape a strong first response.',
+        choice: 'website',
+      },
+      call: {
+        eyebrow: 'Discovery call',
+        heading: 'Set up a call with real context.',
+        copy: 'If a conversation is the fastest way in, tell us what you are working on and when you would like to connect. That gives the call a purpose instead of making it another generic intro.',
+        choice: 'call',
+      },
+      both: {
+        eyebrow: 'Project + call',
+        heading: 'Map the website and the conversation.',
+        copy: 'Choose this when you want to talk through a website scope and also find time for a discovery call. We will have the brief and the scheduling context in one place.',
+        choice: 'both',
+      },
+    };
+
+    const applyContactPreset = (intentKey = 'general') => {
+      const preset = contactPresets[intentKey] || contactPresets.general;
+      currentContactIntent = intentKey;
+
+      if (contactEyebrow) {
+        contactEyebrow.textContent = preset.eyebrow;
+      }
+
+      if (contactHeading) {
+        contactHeading.textContent = preset.heading;
+      }
+
+      if (contactCopy) {
+        contactCopy.textContent = preset.copy;
+      }
+
+      contactIntentInputs.forEach((input) => {
+        input.checked = input.dataset.contactChoice === preset.choice;
+      });
+    };
 
     const stopFolioScroll = () => {
       folioScrollActive = false;
@@ -281,6 +363,10 @@ export function useBrandpulseEffects(containerRef, styleText, pageTitle) {
         return;
       }
 
+      if (contactModal?.classList.contains('is-open')) {
+        closeContactModal({ restoreFocus: false });
+      }
+
       const imageElement = cardBody.querySelector('.folio-img');
       const labelElement = cardBody.querySelector('.folio-label-name');
       const backgroundColor = window.getComputedStyle(cardBody).getPropertyValue('--folio-bg').trim() || '#333';
@@ -302,8 +388,7 @@ export function useBrandpulseEffects(containerRef, styleText, pageTitle) {
       folioModalInner.style.background = backgroundColor;
 
       folioModal.classList.add('is-open');
-      document.body.style.overflow = 'hidden';
-      lenis.stop();
+      lockOverlay('folio');
 
       if (folioModalImg.complete && folioModalImg.naturalHeight > 0) {
         startFolioScroll(80);
@@ -319,8 +404,7 @@ export function useBrandpulseEffects(containerRef, styleText, pageTitle) {
 
       stopFolioScroll();
       folioModal.classList.remove('is-open');
-      document.body.style.overflow = '';
-      lenis.start();
+      unlockOverlay('folio');
       schedule(() => {
         if (!folioModal.classList.contains('is-open')) {
           folioModalImg.src = '';
@@ -328,14 +412,147 @@ export function useBrandpulseEffects(containerRef, styleText, pageTitle) {
       }, 220);
     };
 
+    const closeContactModal = ({ restoreFocus = true } = {}) => {
+      if (!contactModal) {
+        return;
+      }
+
+      contactModal.classList.remove('is-open');
+      contactModal.setAttribute('aria-hidden', 'true');
+      unlockOverlay('contact');
+
+      if (restoreFocus && lastContactTrigger instanceof HTMLElement) {
+        schedule(() => lastContactTrigger?.focus(), 60);
+      }
+    };
+
+    const openContactModal = (intentKey = 'general', trigger = null) => {
+      if (!contactModal || !contactForm || !contactSuccess) {
+        return;
+      }
+
+      if (folioModal?.classList.contains('is-open')) {
+        closeFolioModal();
+      }
+
+      lastContactTrigger = trigger;
+      contactForm.reset();
+      contactForm.hidden = false;
+      contactSuccess.hidden = true;
+
+      if (contactSuccessSummary) {
+        contactSuccessSummary.textContent = '';
+      }
+
+      applyContactPreset(intentKey);
+
+      if (contactModalShell) {
+        contactModalShell.scrollTop = 0;
+      }
+
+      contactModal.classList.add('is-open');
+      contactModal.setAttribute('aria-hidden', 'false');
+      lockOverlay('contact');
+
+      schedule(() => {
+        contactNameInput?.focus();
+      }, 120);
+    };
+
+    contactTriggers.forEach((trigger) => {
+      addListener(trigger, 'click', (event) => {
+        event.preventDefault();
+        openContactModal(trigger.dataset.contactIntent || 'general', trigger);
+      });
+    });
+
+    contactIntentInputs.forEach((input) => {
+      addListener(input, 'change', () => {
+        if (!input.checked) {
+          return;
+        }
+
+        applyContactPreset(input.dataset.contactChoice || 'general');
+      });
+    });
+
+    addListener(contactForm, 'submit', (event) => {
+      event.preventDefault();
+
+      if (!contactForm.checkValidity()) {
+        contactForm.reportValidity();
+        return;
+      }
+
+      const formData = new FormData(contactForm);
+      const summaryParts = [];
+      const name = formData.get('name');
+      const business = formData.get('business');
+      const inquiryType = formData.get('inquiryType');
+      const timeline = formData.get('timeline');
+      const budget = formData.get('budget');
+
+      if (name) {
+        summaryParts.push(`${name}`);
+      }
+
+      if (business) {
+        summaryParts.push(`from ${business}`);
+      }
+
+      if (inquiryType) {
+        summaryParts.push(`is looking for ${String(inquiryType).toLowerCase()}`);
+      }
+
+      if (timeline) {
+        summaryParts.push(`with a timeline of ${String(timeline).toLowerCase()}`);
+      }
+
+      if (budget) {
+        summaryParts.push(`and a budget range of ${budget}`);
+      }
+
+      if (contactSuccessSummary) {
+        contactSuccessSummary.textContent = summaryParts.length
+          ? `${summaryParts.join(' ')}.`
+          : 'Your inquiry is staged and ready for the next step.';
+      }
+
+      contactForm.hidden = true;
+      contactSuccess.hidden = false;
+    });
+
+    addListener(contactSuccessReset, 'click', () => {
+      if (!contactForm || !contactSuccess) {
+        return;
+      }
+
+      contactForm.reset();
+      contactSuccess.hidden = true;
+      contactForm.hidden = false;
+      applyContactPreset(currentContactIntent);
+      schedule(() => contactNameInput?.focus(), 40);
+    });
+
     Array.from(container.querySelectorAll('.folio-card-body')).forEach((cardBody) => {
       addListener(cardBody, 'click', () => openFolioModal(cardBody));
     });
 
     addListener(folioModalClose, 'click', closeFolioModal);
     addListener(folioModalBackdrop, 'click', closeFolioModal);
+    addListener(contactModalClose, 'click', () => closeContactModal());
+    addListener(contactModalBackdrop, 'click', () => closeContactModal());
     addListener(document, 'keydown', (event) => {
-      if (event.key === 'Escape' && folioModal?.classList.contains('is-open')) {
+      if (event.key !== 'Escape') {
+        return;
+      }
+
+      if (contactModal?.classList.contains('is-open')) {
+        closeContactModal();
+        return;
+      }
+
+      if (folioModal?.classList.contains('is-open')) {
         closeFolioModal();
       }
     });
