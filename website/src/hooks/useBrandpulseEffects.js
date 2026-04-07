@@ -94,7 +94,7 @@ export function useBrandpulseEffects(containerRef, styleText, pageTitle) {
     };
 
     const storyNodes = Array.from(container.querySelectorAll('[data-story]'));
-    const heroImages = Array.from(container.querySelectorAll('.hero-background img'));
+    const heroImages = Array.from(container.querySelectorAll('.hero-layer img'));
 
     root.classList.add('js-motion');
     root.classList.remove('hero-loaded');
@@ -139,10 +139,7 @@ export function useBrandpulseEffects(containerRef, styleText, pageTitle) {
       });
     };
 
-    Promise.race([
-      Promise.all(heroImages.map(waitForImageReady)),
-      new Promise((resolve) => schedule(resolve, 1400)),
-    ]).then(readyHero);
+    Promise.all(heroImages.map(waitForImageReady)).then(readyHero);
 
     const observer = new IntersectionObserver(
       (entries, watcher) => {

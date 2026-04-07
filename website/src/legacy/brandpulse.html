@@ -29,7 +29,7 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" as="image" href="https://www.figma.com/api/mcp/asset/7da1b1e5-96ca-413f-98df-8f80c5fcead1">
+  <link rel="preload" as="image" href="https://www.figma.com/api/mcp/asset/0079a806-7ce3-4f3a-8109-d6ae62e0a2f2">
   <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -91,6 +91,69 @@
     .nav-link:focus-visible::after {
       transform: scaleX(1);
       opacity: 1;
+    }
+
+    .hero-nav-contact {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding-left: 1.25rem;
+      border-left: 1px solid rgba(255, 255, 255, 0.26);
+    }
+
+    .hero-nav-email {
+      color: #ffffff;
+      font-size: 0.92rem;
+      line-height: 1;
+      text-decoration: none;
+      transition: color var(--hover-duration) var(--story-hover-ease), opacity var(--hover-duration) var(--story-hover-ease);
+      white-space: nowrap;
+    }
+
+    .hero-nav-email:hover,
+    .hero-nav-email:focus-visible {
+      color: #ffffff;
+      opacity: 0.82;
+      outline: none;
+    }
+
+    .hero-social-links {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+
+    .hero-social-link {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      transition:
+        transform var(--hover-duration) var(--story-hover-ease),
+        opacity var(--hover-duration) var(--story-hover-ease),
+        border-color var(--hover-duration) var(--story-hover-ease),
+        background-color var(--hover-duration) var(--story-hover-ease);
+    }
+
+    .hero-social-link svg {
+      width: 1rem;
+      height: 1rem;
+      stroke: currentColor;
+    }
+
+    .hero-social-link:hover,
+    .hero-social-link:focus-visible {
+      transform: translateY(-1px);
+      opacity: 0.9;
+      border-color: rgba(255, 255, 255, 0.44);
+      background: rgba(255, 255, 255, 0.14);
+      outline: none;
     }
 
     .brand-logo {
@@ -260,7 +323,7 @@
       mask-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.14) 16%, rgba(0, 0, 0, 0.76) 34%, #000 48%, #000 100%);
     }
 
-    .hero-background img {
+    .hero-layer img {
       will-change: transform;
       backface-visibility: hidden;
       transform-style: preserve-3d;
@@ -1826,11 +1889,8 @@
   <section class="hero-section relative w-full overflow-hidden">
     <!-- Background layers -->
     <div class="absolute inset-0 bg-[#021500]"></div>
-    <div class="hero-background hero-layer hero-layer-primary absolute inset-0 overflow-hidden">
-      <img src="https://www.figma.com/api/mcp/asset/7da1b1e5-96ca-413f-98df-8f80c5fcead1" alt="" class="hero-scene-primary absolute" loading="eager" fetchpriority="high" decoding="async" />
-    </div>
     <div class="hero-layer hero-layer-secondary absolute inset-0 overflow-hidden">
-      <img src="https://www.figma.com/api/mcp/asset/0079a806-7ce3-4f3a-8109-d6ae62e0a2f2" alt="" class="hero-scene-secondary absolute" loading="eager" decoding="async" />
+      <img src="https://www.figma.com/api/mcp/asset/0079a806-7ce3-4f3a-8109-d6ae62e0a2f2" alt="" class="hero-scene-secondary absolute" loading="eager" fetchpriority="high" decoding="async" />
     </div>
     <div class="hero-story-overlay absolute inset-0"></div>
     <div class="hero-spotlight"></div>
@@ -1848,11 +1908,28 @@
               BrandPulse<span class="brand-wordmark-dot">.</span>
             </a>
           </div>
-          <div class="hidden sm:flex items-center gap-6 lg:gap-16">
-            <div class="flex items-center gap-6 lg:gap-12">
-              <a href="#" class="nav-link text-white text-base font-medium leading-none">Home</a>
-              <a href="#" class="nav-link text-white/80 text-base font-medium leading-none hover:text-white transition-colors">About</a>
-              <a href="#" class="nav-link text-white/80 text-base font-medium leading-none hover:text-white transition-colors">Portfolio</a>
+          <div class="hidden sm:flex items-center gap-4 lg:gap-6">
+            <div class="hero-nav-contact">
+              <a href="mailto:hello@brandpulsecreative.com" class="hero-nav-email hidden md:inline-flex">hello@brandpulsecreative.com</a>
+              <div class="hero-social-links" aria-label="BrandPulse social links">
+                <a href="#" class="hero-social-link" aria-label="Twitter">
+                  <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+                  </svg>
+                </a>
+                <a href="#" class="hero-social-link" aria-label="LinkedIn">
+                  <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true">
+                    <path d="M6.2 8.35a1.85 1.85 0 1 0 0-3.7a1.85 1.85 0 0 0 0 3.7ZM4.75 9.75h2.9V19h-2.9V9.75ZM9.45 9.75h2.78v1.26h.04c.39-.73 1.34-1.5 2.76-1.5c2.95 0 3.5 1.94 3.5 4.46V19h-2.9v-4.45c0-1.06-.02-2.43-1.48-2.43c-1.49 0-1.72 1.16-1.72 2.35V19h-2.98V9.75Z"></path>
+                  </svg>
+                </a>
+                <a href="#" class="hero-social-link" aria-label="Instagram">
+                  <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                    <path d="M16 11.37a4 4 0 1 1-2.83-3.83 4 4 0 0 1 2.83 3.83z"></path>
+                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                  </svg>
+                </a>
+              </div>
             </div>
             <a href="#" class="story-cta bg-brand-orange text-white text-base font-semibold px-8 py-4 rounded-lg leading-none hover:brightness-110 transition" data-contact-open data-contact-intent="general">Contact</a>
           </div>
@@ -2322,7 +2399,7 @@
     document.addEventListener('DOMContentLoaded', () => {
       const root = document.documentElement;
       const storyNodes = document.querySelectorAll('[data-story]');
-      const heroImages = Array.from(document.querySelectorAll('.hero-background img'));
+      const heroImages = Array.from(document.querySelectorAll('.hero-layer img'));
       const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       const readyHero = () => {
         requestAnimationFrame(() => {
@@ -2366,10 +2443,7 @@
         root.classList.add('hero-loaded');
         storyNodes.forEach((node) => node.classList.add('is-visible'));
       } else {
-        Promise.race([
-          Promise.all(heroImages.map(waitForImageReady)),
-          new Promise((resolve) => window.setTimeout(resolve, 1800)),
-        ]).then(readyHero);
+        Promise.all(heroImages.map(waitForImageReady)).then(readyHero);
 
         const observer = new IntersectionObserver((entries, watcher) => {
           entries.forEach((entry) => {
